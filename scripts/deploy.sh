@@ -11,7 +11,7 @@ flock -n 9 || exit 0
 python3 fetch.py site
 touch site/.nojekyll
 export GIT_INDEX_FILE
-GIT_INDEX_FILE=$(mktemp)
+GIT_INDEX_FILE=$(mktemp -u /tmp/election-watch-index.XXXXXX)
 trap 'rm -f "$GIT_INDEX_FILE"' EXIT
 git --work-tree=site add -f index.html data.json .nojekyll
 tree=$(git write-tree)

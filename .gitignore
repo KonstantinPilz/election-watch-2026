@@ -1,0 +1,5 @@
+site/data.json
+site/state.json
+site/.nojekyll
+deploy.log
+__pycache__/

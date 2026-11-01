@@ -1,0 +1,33 @@
+name: update-data
+on:
+  schedule:
+    - cron: "*/5 * * * *"   # GitHub runs these late at busy times; scripts/dispatch.sh nudges it from the VM
+  workflow_dispatch:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: false
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch Kalshi + Polymarket
+        env:
+          STATE_URL: https://konstantinpilz.github.io/election-watch-2026/state.json
+        run: python3 fetch.py site
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - id: deploy
+        uses: actions/deploy-pages@v4

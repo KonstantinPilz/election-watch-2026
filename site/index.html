@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Midterm Market Watch</title>
+<style>
+:root{
+  --bg:#fcfcfb; --panel:#ffffff; --ink:#1d1f22; --ink2:#4a4f57; --muted:#7a8089; --rule:#e4e5e7; --rule2:#f0f1f2;
+  --D:#2563C9; --R:#D23F3F; --Dsoft:#dbe6f7; --Rsoft:#f8dede;
+  --K:#0F8F73; --P:#7A4FD6; --grid:#eceef0; --hover:#f4f5f6; --chip:#f1f2f4;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#1a1a19; --panel:#222221; --ink:#ecebe8; --ink2:#c2c0bb; --muted:#8f8d88; --rule:#3a3936; --rule2:#2c2b29;
+    --D:#5b8fe6; --R:#e8676a; --Dsoft:#24344f; --Rsoft:#4a2727;
+    --K:#2F9E84; --P:#9B7BEA; --grid:#2f2e2c; --hover:#2a2a28; --chip:#2c2b29;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#1a1a19; --panel:#222221; --ink:#ecebe8; --ink2:#c2c0bb; --muted:#8f8d88; --rule:#3a3936; --rule2:#2c2b29;
+  --D:#5b8fe6; --R:#e8676a; --Dsoft:#24344f; --Rsoft:#4a2727;
+  --K:#2F9E84; --P:#9B7BEA; --grid:#2f2e2c; --hover:#2a2a28; --chip:#2c2b29;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1080px;margin:0 auto;padding:20px 16px 60px}
+h1{font-size:22px;margin:0 0 2px;letter-spacing:-.01em}
+h2{font-size:18px;margin:34px 0 4px;letter-spacing:-.01em}
+h3{font-size:14px;margin:22px 0 6px;color:var(--ink2)}
+.sub{color:var(--ink2);margin:0}
+.status{color:var(--muted);font-size:12.5px;margin-top:6px;display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:0}
+.live{background:var(--K)} .pulse{animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.controls{display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;margin:16px 0 4px;padding:10px 12px;background:var(--panel);border:1px solid var(--rule);border-radius:10px}
+.ctl{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink2);flex-wrap:wrap;min-width:0}
+.seg{display:inline-flex;border:1px solid var(--rule);border-radius:7px;overflow:hidden}
+.seg button{border:0;background:transparent;color:var(--ink2);padding:5px 10px;font:inherit;font-size:13px;cursor:pointer}
+.seg button+button{border-left:1px solid var(--rule)}
+.seg button.on{background:var(--chip);color:var(--ink);font-weight:600}
+input[type=range]{width:120px;accent-color:var(--ink2)}
+.tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:12px 0 6px}
+.tile{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:10px 12px}
+.tile .lab{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px}
+.tile .big{font-size:28px;font-weight:650;letter-spacing:-.02em;font-variant-numeric:tabular-nums;margin-top:2px}
+.tile .note{font-size:12px;color:var(--ink2)}
+.swatch{display:inline-block;width:10px;height:10px;border-radius:2px}
+.card{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:12px 12px 8px;margin-top:10px}
+.chart{width:100%;height:auto;display:block}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12.5px;color:var(--ink2);margin:2px 2px 6px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th{font-size:11.5px;font-weight:600;color:var(--muted);text-align:left;padding:6px 8px;border-bottom:1px solid var(--rule);white-space:nowrap}
+td{padding:7px 8px;border-bottom:1px solid var(--rule2);vertical-align:middle}
+tr:hover td{background:var(--hover)}
+th.num,td.num{text-align:right}
+.tscroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.race{font-weight:600;white-space:nowrap}
+.race small{font-weight:400;color:var(--muted);margin-left:4px}
+.match{color:var(--ink2);font-size:13px;min-width:180px}
+.match .d{color:var(--ink)} .pd{display:inline-block;font-size:10.5px;font-weight:700;padding:0 4px;border-radius:3px;margin-left:3px;color:#fff;vertical-align:1px}
+.pcell{min-width:84px}
+.pbar{position:relative;height:18px;border-radius:4px;background:var(--rule2);overflow:hidden}
+.pbar i{position:absolute;left:0;top:0;bottom:0;border-radius:4px 0 0 4px;opacity:.28}
+.pbar b{position:relative;display:block;text-align:right;padding-right:6px;font-weight:600;font-size:13px;line-height:18px}
+.na{color:var(--muted)}
+a{color:inherit;text-decoration-color:var(--rule)}
+a:hover{text-decoration-color:var(--ink2)}
+.ext{font-size:11px;color:var(--muted);text-decoration:none;margin-left:2px}
+.gap{color:var(--ink2);font-size:13px}
+.gap.big{font-weight:650;color:var(--ink)}
+.summ td,.summ th{padding:5px 8px}
+.tip{position:fixed;pointer-events:none;background:var(--panel);color:var(--ink);border:1px solid var(--rule);box-shadow:0 4px 18px rgba(0,0,0,.12);border-radius:8px;padding:7px 9px;font-size:12.5px;line-height:1.4;z-index:20;display:none;max-width:260px}
+.tip .h{font-weight:650;margin-bottom:2px}
+.search{border:1px solid var(--rule);background:var(--panel);color:var(--ink);border-radius:7px;padding:5px 9px;font:inherit;font-size:13px;width:200px}
+.method{color:var(--ink2);font-size:13.5px;max-width:760px}
+.method li{margin:4px 0}
+details summary{cursor:pointer;color:var(--ink2);font-weight:600;font-size:13.5px;margin-top:14px}
+.err{color:var(--R);font-size:13px}
+@media (max-width:640px){
+  .tiles{grid-template-columns:1fr}
+  .tile .big{font-size:24px}
+  h1{font-size:19px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>2026 midterms: prediction-market watch</h1>
+  <p class="sub">Kalshi and Polymarket odds for the U.S. Senate and House, and the seat distribution implied by the race-level prices. Election day is Tuesday, November 3, 2026.</p>
+  <div class="status" id="status">Loading…</div>
+
+  <div class="controls">
+    <div class="ctl">View from
+      <div class="seg" id="pov"><button data-v="D" class="on">Democrats</button><button data-v="R">Republicans</button></div></div>
+    <div class="ctl">Race odds for seat math
+      <div class="seg" id="src"><button data-v="avg" class="on">Average</button><button data-v="k">Kalshi</button><button data-v="p">Polymarket</button></div></div>
+    <div class="ctl" title="How strongly race outcomes move together (a shared national swing). Auto fits it so the seat distribution matches the Kalshi and Polymarket seat-count markets.">Race correlation
+      <div class="seg" id="rhomode"><button data-v="fit" class="on">Auto</button><button data-v="manual">Manual</button></div>
+      <input type="range" id="rho" min="0" max="0.9" step="0.01" value="0.3" disabled>
+      <span id="rhoval" style="font-variant-numeric:tabular-nums"></span></div>
+  </div>
+
+  <h2>Senate</h2>
+  <p class="sub" id="senSub"></p>
+  <div class="tiles" id="senTiles"></div>
+  <div class="card">
+    <div class="legend" id="senLegend"></div>
+    <svg class="chart" id="senChart" viewBox="0 0 1000 300" role="img" aria-label="Senate seat distribution"></svg>
+    <div class="tscroll"><table class="summ" id="senSumm"></table></div>
+  </div>
+  <h3 id="senRacesTitle">Competitive races</h3>
+  <div class="tscroll"><table id="senTable"></table></div>
+
+  <h2>House</h2>
+  <p class="sub" id="houSub"></p>
+  <div class="tiles" id="houTiles"></div>
+  <div class="card">
+    <div class="legend" id="houLegend"></div>
+    <svg class="chart" id="houChart" viewBox="0 0 1000 300" role="img" aria-label="House seat distribution"></svg>
+    <div class="tscroll"><table class="summ" id="houSumm"></table></div>
+  </div>
+  <h3 id="houRacesTitle" style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+    <span id="houRacesLabel">Competitive districts</span>
+    <input class="search" id="houSearch" placeholder="Filter, e.g. NY or Lawler">
+  </h3>
+  <div class="tscroll"><table id="houTable"></table></div>
+
+  <details open>
+    <summary>How this page works</summary>
+    <ul class="method">
+      <li><b>Which races are listed.</b> A race appears if its leading side traded below 90% at any hour in the past 7 days on Kalshi or Polymarket (hourly prices). Safe races still count toward the seat math; they're just not listed.</li>
+      <li><b>Prices.</b> Each candidate's price is the midpoint of the best bid and ask, or the last trade when the spread is wider than 10 cents (Polymarket's own display rule). We rescale each race's prices to sum to 100%. Polymarket prices refresh in your browser every 30 seconds. Kalshi blocks browser requests, so a server job fetches Kalshi roughly every 5 minutes.</li>
+      <li><b>Senate seat math.</b> 34 Democratic-caucus seats (including King and Sanders) and 31 Republican seats aren't up in 2026. For each of the 35 races up (33 regular, plus specials in Ohio and Florida), we take the probability that the non-Republican side wins. Independents who win (Osborn in Nebraska, Bodnar in Montana, Achilles in Idaho, Bengs in South Dakota) count on the Democratic side; none has committed to caucus with Democrats, so the Democratic "control" figure here is slightly optimistic. With Vice President Vance breaking ties, Republicans keep control at 50 seats; Democrats need 51.</li>
+      <li><b>Correlation.</b> Treating races as independent makes the seat distribution far too narrow, because a national swing moves every race together. We use a one-factor Gaussian model: each race's outcome is driven by a shared national shock (weight √ρ) plus a race-specific shock (weight √(1−ρ)), calibrated so each race keeps its market probability. Auto mode picks ρ to best match the cumulative seat distribution in the Kalshi and Polymarket seat-count markets. The distribution is computed exactly (numerical integration over the national shock, then an exact count over races), not by simulation.</li>
+      <li><b>House seat math.</b> Same method over all districts with a market (Polymarket covers essentially every district; Kalshi about 75). The seat-count markets are shown as horizontal bars spanning each bucket, at the per-seat average probability. Polymarket's market counts Republican seats; we convert to Democratic seats as 435 minus Republican seats. On November 1 the district markets summed to about 246 expected Democratic seats while both seat-count markets centered near 240–242, so the model sits a few seats more Democratic than the seat-count markets. Long-shot pricing doesn't explain the gap: safe Republican districts add about 4.6 "phantom" Democratic seats and safe Democratic districts about 4.1 phantom Republican seats, which roughly cancel. It's a disagreement between the two kinds of market.</li>
+      <li><b>Data.</b> Kalshi public API and Polymarket Gamma/CLOB APIs. Market prices include fees and the long-shot bias, so treat small probabilities with caution.</li>
+    </ul>
+  </details>
+</div>
+<div class="tip" id="tip"></div>
+
+<script>
+"use strict";
+const STATE_NAMES={AL:"Alabama",AK:"Alaska",AZ:"Arizona",AR:"Arkansas",CA:"California",CO:"Colorado",CT:"Connecticut",DE:"Delaware",FL:"Florida",GA:"Georgia",HI:"Hawaii",ID:"Idaho",IL:"Illinois",IN:"Indiana",IA:"Iowa",KS:"Kansas",KY:"Kentucky",LA:"Louisiana",ME:"Maine",MD:"Maryland",MA:"Massachusetts",MI:"Michigan",MN:"Minnesota",MS:"Mississippi",MO:"Missouri",MT:"Montana",NE:"Nebraska",NV:"Nevada",NH:"New Hampshire",NJ:"New Jersey",NM:"New Mexico",NY:"New York",NC:"North Carolina",ND:"North Dakota",OH:"Ohio",OK:"Oklahoma",OR:"Oregon",PA:"Pennsylvania",RI:"Rhode Island",SC:"South Carolina",SD:"South Dakota",TN:"Tennessee",TX:"Texas",UT:"Utah",VT:"Vermont",VA:"Virginia",WA:"Washington",WV:"West Virginia",WI:"Wisconsin",WY:"Wyoming"};
+const PARTY_NAME={D:"Democrats",R:"Republicans"};
+const PARTY_ADJ={D:"Democratic",R:"Republican"};
+const ST={pov:"D",src:"avg",rhoMode:"fit",rhoManual:0.3,rhoFit:{senate:null,house:null},houQuery:""};
+let DATA=null, LIVE={}, liveAt=null, liveErr=false, dataErr=false;
+
+// ---------- math
+function Phi(x){const t=1/(1+0.2316419*Math.abs(x));const d=0.3989422804014327*Math.exp(-x*x/2);
+  let p=d*t*(0.319381530+t*(-0.356563782+t*(1.781477937+t*(-1.821255978+t*1.330274429))));return x>0?1-p:p;}
+function invPhi(p){const a=[-39.69683028665376,220.9460984245205,-275.9285104469687,138.3577518672690,-30.66479806614716,2.506628277459239],
+  b=[-54.47609879822406,161.5858368580409,-155.6989798598866,66.80131188771972,-13.28068155288572],
+  c=[-0.007784894002430293,-0.3223964580411365,-2.400758277161838,-2.549732539343734,4.374664141464968,2.938163982698783],
+  d=[0.007784695709041462,0.3224671290700398,2.445134137142996,3.754408661907416];const pl=0.02425;let q,r;
+  if(p<pl){q=Math.sqrt(-2*Math.log(p));return(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);}
+  if(p>1-pl){q=Math.sqrt(-2*Math.log(1-p));return-(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);}
+  q=p-0.5;r=q*q;return(((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5])*q/(((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1);}
+const NODES=(()=>{const z=[],w=[];for(let i=-36;i<=36;i++){const x=i/6;z.push(x);w.push(Math.exp(-x*x/2));}const s=w.reduce((a,b)=>a+b,0);return{z,w:w.map(v=>v/s)};})();
+function poissonBinomial(ps){const n=ps.length,d=new Float64Array(n+1);d[0]=1;
+  for(let i=0;i<n;i++){const p=ps[i],q=1-p;for(let k=i+1;k>0;k--)d[k]=d[k]*q+d[k-1]*p;d[0]*=q;}return d;}
+// P(k wins) when each race i is won with prob qs[i] and races share a national shock with correlation rho
+function seatDist(qs,rho){const n=qs.length,out=new Float64Array(n+1);
+  const s=qs.map(q=>invPhi(Math.min(1-1e-5,Math.max(1e-5,q))));
+  if(rho<1e-4){return poissonBinomial(qs.map(q=>Math.min(1,Math.max(0,q))));}
+  const a=Math.sqrt(rho),b=Math.sqrt(1-rho),ps=new Array(n);
+  for(let j=0;j<NODES.z.length;j++){const z=NODES.z[j];for(let i=0;i<n;i++)ps[i]=Phi((s[i]-a*z)/b);
+    const d=poissonBinomial(ps);const w=NODES.w[j];for(let k=0;k<=n;k++)out[k]+=w*d[k];}
+  return out;}
+
+// ---------- prices
+function platProbs(rec,plat){const P=rec[plat];if(!P)return null;const pr={D:0,R:0,I:0,O:0};
+  for(const c of P.cands){let price=c.price;
+    if(plat==="p"&&LIVE[c.id]!=null&&c.ask>0&&(c.ask-c.bid)<=0.1001)price=LIVE[c.id];
+    pr[c.party]+=price;}
+  const t=pr.D+pr.R+pr.I+pr.O;if(t<=0)return null;for(const k in pr)pr[k]/=t;return pr;}
+// probability that the viewpoint party's side wins this race
+function povProb(rec,plat,ch,pov){const p=platProbs(rec,plat);if(!p)return null;
+  if(ch==="senate")return pov==="D"?1-p.R:p.R;return pov==="D"?p.D:p.R;}
+function blend(k,p,src){if(src==="k")return k??p;if(src==="p")return p??k;if(k!=null&&p!=null)return(k+p)/2;return k??p;}
+function raceQ(rec,ch,pov,src){return blend(povProb(rec,"k",ch,pov),povProb(rec,"p",ch,pov),src);}
+
+// ---------- seat distributions in "Democratic seats" terms (the fit target), then flipped for the GOP view
+function demDist(ch,rho){const races=DATA[ch].races;const qs=races.map(r=>raceQ(r,ch,"D",ST.src)).filter(q=>q!=null);
+  const d=seatDist(qs,rho);const off=ch==="senate"?DATA.senate.base.D:0;return{pmf:d,off};}
+function marketCdfPoints(buckets){let c=0;const pts=[];for(const b of buckets){c+=b.p;if(b.hi!=null)pts.push([b.hi,c]);}return pts;}
+function fitRho(ch){const mk=DATA.seats[ch];const targets=[mk.kalshi,mk.polymarket].filter(b=>b&&b.length).map(marketCdfPoints);
+  if(!targets.length)return 0.3;const races=DATA[ch].races;const qs=races.map(r=>raceQ(r,ch,"D",ST.src)).filter(q=>q!=null);
+  const off=ch==="senate"?DATA.senate.base.D:0;
+  const loss=rho=>{const d=seatDist(qs,rho);const cdf=new Float64Array(d.length);let c=0;for(let k=0;k<d.length;k++){c+=d[k];cdf[k]=c;}
+    let L=0;for(const pts of targets)for(const[hi,F]of pts){const k=hi-off;const m=k<0?0:k>=cdf.length?1:cdf[k];L+=(m-F)**2;}return L;};
+  let best=0,bl=Infinity;for(let r=0;r<=0.9001;r+=0.05){const l=loss(r);if(l<bl){bl=l;best=r;}}
+  const lo=Math.max(0,best-0.05),hi=Math.min(0.95,best+0.05);for(let r=lo;r<=hi+1e-9;r+=0.01){const l=loss(r);if(l<bl){bl=l;best=r;}}
+  return Math.round(best*100)/100;}
+function rhoFor(ch){return ST.rhoMode==="fit"?(ST.rhoFit[ch]??0.3):ST.rhoManual;}
+
+// returns {seats:[{n,p}], ...} for the viewpoint party
+function povDist(ch){const rho=rhoFor(ch);const total=ch==="senate"?100:435;
+  if(ch==="senate"){const {pmf,off}=demDist(ch,rho);const arr=[];for(let k=0;k<pmf.length;k++)arr.push({n:ST.pov==="D"?off+k:total-(off+k),p:pmf[k]});return arr.sort((a,b)=>a.n-b.n);}
+  const qs=DATA.house.races.map(r=>raceQ(r,"house",ST.pov,ST.src)).filter(q=>q!=null);const d=seatDist(qs,rho);
+  return Array.from(d,(p,k)=>({n:k,p}));}
+function povBuckets(ch,b){if(!b)return[];if(ST.pov==="D")return b;const t=ch==="senate"?100:435;
+  return b.map(x=>({lo:x.hi!=null?t-x.hi:null,hi:x.lo!=null?t-x.lo:null,p:x.p})).sort((a,c)=>(a.lo??-1)-(c.lo??-1));}
+const need=ch=>ch==="senate"?(ST.pov==="D"?51:50):218;
+
+// ---------- formatting
+const pct=(x,dp)=>x==null?"–":(x<0.005&&x>0?"<1%":x>0.995&&x<1?">99%":(100*x).toFixed(dp??0)+"%");
+const fmtTime=t=>new Date(t*1000).toLocaleTimeString([], {hour:"numeric",minute:"2-digit"});
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const povColor=()=>ST.pov==="D"?"var(--D)":"var(--R)";
+const oppColor=()=>ST.pov==="D"?"var(--R)":"var(--D)";
+function quantile(arr,q){let c=0;for(const x of arr){c+=x.p;if(c>=q)return x.n;}return arr[arr.length-1].n;}
+function bucketLabel(b){if(b.lo==null)return"≤"+b.hi;if(b.hi==null)return b.lo+"+";return b.lo===b.hi?""+b.lo:b.lo+"–"+b.hi;}
+function bucketQuantile(bs,q){let c=0;for(const b of bs){c+=b.p;if(c>=q)return bucketLabel(b);}return"–";}
+// P(seats >= n); a bucket that straddles n is split evenly across its seats (returned as approx)
+function bucketProbAtLeast(bs,n){let s=0,approx=false;for(const b of bs){
+    if(b.lo!=null&&b.lo>=n)s+=b.p;
+    else if(b.hi!=null&&b.hi<n)continue;
+    else if(b.lo!=null&&b.hi!=null){s+=b.p*(b.hi-n+1)/(b.hi-b.lo+1);approx=true;}
+    else return null;}
+  return{v:s,approx};}
+
+// ---------- tooltip
+const tip=document.getElementById("tip");
+function showTip(e,html){tip.innerHTML=html;tip.style.display="block";const w=tip.offsetWidth,h=tip.offsetHeight;
+  let x=e.clientX+14,y=e.clientY+14;if(x+w>innerWidth-8)x=e.clientX-w-14;if(y+h>innerHeight-8)y=e.clientY-h-14;tip.style.left=x+"px";tip.style.top=y+"px";}
+function hideTip(){tip.style.display="none";}
+
+// ---------- seat chart
+function drawSeatChart(ch){const svg=document.getElementById(ch==="senate"?"senChart":"houChart");
+  const dist=povDist(ch);const mk=DATA.seats[ch];const kb=povBuckets(ch,mk.kalshi),pb=povBuckets(ch,mk.polymarket);
+  const thr=need(ch);
+  // x-range: where the model or markets put meaningful probability
+  let lo=quantile(dist,0.001),hi=quantile(dist,0.999);
+  for(const bs of [kb,pb])for(const b of bs){if(b.p<0.004)continue;if(b.lo!=null)lo=Math.min(lo,b.lo);if(b.hi!=null)hi=Math.max(hi,b.hi);}
+  lo=Math.min(lo,thr-2);hi=Math.max(hi,thr+2);
+  const W=1000,H=300,m={l:46,r:12,t:16,b:34};const n=hi-lo+1;const bw=(W-m.l-m.r)/n;
+  const X=s=>m.l+(s-lo)*bw;const pmax=Math.max(0.02,...dist.filter(d=>d.n>=lo&&d.n<=hi).map(d=>d.p),
+    ...[kb,pb].flatMap(bs=>bs.filter(b=>b.lo!=null&&b.hi!=null).map(b=>b.p/(b.hi-b.lo+1))));
+  const ymax=Math.ceil(pmax*100/2)*2/100;const Y=p=>H-m.b-(p/ymax)*(H-m.t-m.b);
+  let g="";
+  const step=ymax>0.2?0.05:ymax>0.08?0.02:0.01;
+  for(let v=0;v<=ymax+1e-9;v+=step){g+=`<line x1="${m.l}" x2="${W-m.r}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--grid)"/>`+
+    `<text x="${m.l-6}" y="${Y(v)+4}" text-anchor="end" font-size="11" fill="var(--muted)">${Math.round(v*100)}%</text>`;}
+  const tstep=n>60?10:n>30?5:n>16?2:1;
+  for(let s=Math.ceil(lo/tstep)*tstep;s<=hi;s+=tstep)g+=`<text x="${X(s)+bw/2}" y="${H-m.b+16}" text-anchor="middle" font-size="11" fill="var(--muted)">${s}</text>`;
+  g+=`<text x="${(W+m.l)/2}" y="${H-3}" text-anchor="middle" font-size="11.5" fill="var(--ink2)">${PARTY_NAME[ST.pov]}${ch==="senate"&&ST.pov==="D"?" + independents":""}: seats</text>`;
+  // bars: model
+  const gap=Math.min(2,bw*0.15);
+  for(const d of dist){if(d.n<lo||d.n>hi)continue;const y=Y(d.p),h=H-m.b-y;if(h<=0.3)continue;
+    const col=d.n>=thr?povColor():oppColor();const x=X(d.n)+gap/2,w=Math.max(0.6,bw-gap);const r=Math.min(3,w/2,h);
+    g+=`<path d="M${x},${H-m.b}V${y+r}Q${x},${y} ${x+r},${y}H${x+w-r}Q${x+w},${y} ${x+w},${y+r}V${H-m.b}Z" fill="${col}" opacity="0.55"/>`;}
+  // majority line
+  const xm=X(thr);g+=`<line x1="${xm}" x2="${xm}" y1="${m.t-4}" y2="${H-m.b}" stroke="var(--ink2)" stroke-dasharray="3 3"/>`+
+    `<text x="${xm+5}" y="${m.t+6}" font-size="11.5" fill="var(--ink2)">${thr} = ${PARTY_NAME[ST.pov]} control →</text>`;
+  // markets: dots for single-seat buckets, horizontal bars for ranges
+  const mkMark=(bs,col,dy)=>{let s="";for(const b of bs){if(b.lo==null||b.hi==null)continue;if(b.hi<lo||b.lo>hi)continue;
+    const w=b.hi-b.lo+1,pp=b.p/w,y=Y(pp);
+    if(w===1)s+=`<circle cx="${X(b.lo)+bw/2+dy}" cy="${y}" r="4.5" fill="${col}" stroke="var(--panel)" stroke-width="2"/>`;
+    else s+=`<line x1="${X(Math.max(lo,b.lo))+3}" x2="${X(Math.min(hi,b.hi))+bw-3}" y1="${y}" y2="${y}" stroke="${col}" stroke-width="3" stroke-linecap="round"/>`;}return s;};
+  g+=mkMark(kb,"var(--K)",-Math.min(4,bw/5))+mkMark(pb,"var(--P)",Math.min(4,bw/5));
+  // hover targets
+  for(const d of dist){if(d.n<lo||d.n>hi)continue;g+=`<rect x="${X(d.n)}" y="${m.t}" width="${bw}" height="${H-m.t-m.b}" fill="transparent" data-n="${d.n}"/>`;}
+  svg.innerHTML=g;
+  const inB=(bs,nn)=>bs.find(b=>(b.lo==null||b.lo<=nn)&&(b.hi==null||b.hi>=nn));
+  svg.querySelectorAll("rect[data-n]").forEach(r=>{r.addEventListener("mousemove",e=>{const nn=+r.dataset.n;const d=dist.find(x=>x.n===nn);
+    const k=inB(kb,nn),p=inB(pb,nn);
+    const row=(lab,col,b)=>b?`<div><span class="swatch" style="background:${col}"></span> ${lab}: ${pct(b.p,1)}${b.lo===b.hi?"":` for ${bucketLabel(b)}`}</div>`:"";
+    showTip(e,`<div class="h">${nn} seats · ${nn>=thr?PARTY_NAME[ST.pov]+" control":"no "+PARTY_NAME[ST.pov].toLowerCase().replace(/s$/,"")+" majority"}</div>
+      <div><span class="swatch" style="background:${nn>=thr?povColor():oppColor()};opacity:.55"></span> Model: ${pct(d.p,1)}</div>${row("Kalshi",'var(--K)',k)}${row("Polymarket",'var(--P)',p)}`);});
+    r.addEventListener("mouseleave",hideTip);});
+  // summary table
+  const pModel=dist.filter(d=>d.n>=thr).reduce((a,d)=>a+d.p,0);
+  const ctl=DATA.control[ch];const ctlP=c=>c&&c.D!=null&&c.R!=null?(ST.pov==="D"?c.D:c.R)/(c.D+c.R):null;
+  const summ=document.getElementById(ch==="senate"?"senSumm":"houSumm");
+  const rowS=(lab,col,ctlv,med,lo10,hi90,atl)=>`<tr><td><span class="swatch" style="background:${col}"></span> ${lab}</td><td class="num"><b>${pct(ctlv)}</b></td><td class="num">${atl==null?"–":(atl.approx?"≈":"")+pct(atl.v)}</td><td class="num">${med}</td><td class="num">${lo10} to ${hi90}</td></tr>`;
+  summ.innerHTML=`<tr><th></th><th class="num">${PARTY_NAME[ST.pov]} win chamber</th><th class="num">≥${thr} seats in seat market</th><th class="num">Median seats</th><th class="num">80% range</th></tr>`+
+    rowS(`Model from race odds (ρ = ${rhoFor(ch).toFixed(2)})`,povColor(),pModel,quantile(dist,0.5),quantile(dist,0.1),quantile(dist,0.9),null)+
+    rowS(`Kalshi <a class="ext" href="${ctl.kalshi_url}" target="_blank" rel="noopener">↗</a>`,"var(--K)",ctlP(ctl.kalshi),bucketQuantile(kb,0.5),bucketQuantile(kb,0.1),bucketQuantile(kb,0.9),bucketProbAtLeast(kb,thr))+
+    rowS(`Polymarket <a class="ext" href="${ctl.polymarket_url}" target="_blank" rel="noopener">↗</a>`,"var(--P)",ctlP(ctl.polymarket),bucketQuantile(pb,0.5),bucketQuantile(pb,0.1),bucketQuantile(pb,0.9),bucketProbAtLeast(pb,thr));
+  // tiles
+  const tiles=document.getElementById(ch==="senate"?"senTiles":"houTiles");
+  const tile=(lab,col,v,note)=>`<div class="tile"><div class="lab"><span class="swatch" style="background:${col}"></span>${lab}</div><div class="big">${pct(v)}</div><div class="note">${note}</div></div>`;
+  tiles.innerHTML=tile("Model from race odds",povColor(),pModel,`median ${quantile(dist,0.5)} seats · 80% range ${quantile(dist,0.1)}–${quantile(dist,0.9)}`)+
+    tile("Kalshi control market","var(--K)",ctlP(ctl.kalshi),`${PARTY_NAME[ST.pov]} win the ${ch==="senate"?"Senate":"House"}`)+
+    tile("Polymarket control market","var(--P)",ctlP(ctl.polymarket),`${PARTY_NAME[ST.pov]} win the ${ch==="senate"?"Senate":"House"}`);
+  document.getElementById(ch==="senate"?"senLegend":"houLegend").innerHTML=
+    `<span><span class="swatch" style="background:${povColor()};opacity:.55"></span>Model: P(exact seat count), ${PARTY_NAME[ST.pov]} control</span>`+
+    `<span><span class="swatch" style="background:${oppColor()};opacity:.55"></span>Model, other party controls</span>`+
+    `<span><span class="swatch" style="background:var(--K);border-radius:50%"></span>Kalshi seat-count market</span>`+
+    `<span><span class="swatch" style="background:var(--P);border-radius:50%"></span>Polymarket seat-count market</span>`;
+  document.getElementById(ch==="senate"?"senSub":"houSub").textContent=ch==="senate"
+    ?`${ST.pov==="D"?"Democrats hold 34 seats not up this year (incl. King and Sanders) and need 51 for control":"Republicans hold 31 seats not up this year and keep control with 50 (VP Vance breaks ties)"}; 35 seats are up.`
+    :`Model across ${DATA.house.races.length} districts with a market. ${PARTY_NAME[ST.pov]} need 218 seats. District odds add up to ${Math.round(DATA.house.races.map(r=>raceQ(r,"house",ST.pov,ST.src)).filter(q=>q!=null).reduce((a,b)=>a+b,0))} expected ${PARTY_ADJ[ST.pov]} seats; compare the seat-count markets' medians below.`;
+}
+
+// ---------- race tables
+function sparkline(rec,ch){const W=150,H=34;const series=[];
+  for(const[plat,col]of[["k","var(--K)"],["p","var(--P)"]]){const P=rec[plat];if(!P||!P.hist||!P.hist.length)continue;
+    const pts=P.hist.map(h=>[h[0],ch==="senate"?(ST.pov==="D"?1-h[2]:h[2]):(ST.pov==="D"?h[1]:h[2])]);series.push({pts,col});}
+  if(!series.length)return"";const t0=Math.min(...series.map(s=>s.pts[0][0])),t1=Math.max(...series.map(s=>s.pts[s.pts.length-1][0]));
+  const all=series.flatMap(s=>s.pts.map(p=>p[1]));let mn=Math.min(...all),mx=Math.max(...all);
+  if(mx-mn<0.2){const c=(mx+mn)/2;mn=c-0.1;mx=c+0.1;}if(mn<0){mx-=mn;mn=0;}if(mx>1){mn-=mx-1;mx=1;}
+  const X=t=>2+(t-t0)/(t1-t0||1)*(W-30),Y=p=>H-3-(p-mn)/(mx-mn)*(H-6);
+  let s=`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="display:block" aria-label="7-day price history, ${pct(mn)} to ${pct(mx)} scale">`;
+  if(0.5>mn&&0.5<mx)s+=`<line x1="0" x2="${W}" y1="${Y(0.5)}" y2="${Y(0.5)}" stroke="var(--rule)" stroke-dasharray="2 2"/>`;
+  s+=`<text x="${W}" y="8" text-anchor="end" font-size="8.5" fill="var(--muted)">${pct(mx)}</text><text x="${W}" y="${H-1}" text-anchor="end" font-size="8.5" fill="var(--muted)">${pct(mn)}</text>`;
+  for(const se of series)s+=`<polyline fill="none" stroke="${se.col}" stroke-width="1.6" stroke-linejoin="round" points="${se.pts.map(p=>X(p[0]).toFixed(1)+","+Y(p[1]).toFixed(1)).join(" ")}"/>`;
+  return s+"</svg>";}
+function candNames(rec,ch){const src=rec.k||rec.p;const all=[...(rec.k?rec.k.cands:[]),...(rec.p?rec.p.cands:[])];
+  const clean=s=>s.replace(/\s*\((D|R|I)\)\s*/g,"").replace(/^Sen\.\s+/,"").trim();
+  const generic=s=>/^(Democrat(ic)?( party)?|Republican( party)?|Independent)$/i.test(clean(s));
+  const pick=pred=>{const cs=all.filter(pred).sort((a,b)=>b.price-a.price);const named=cs.find(c=>!generic(c.name));return named?clean(named.name):(cs[0]?clean(cs[0].name):"");};
+  const r=pick(c=>c.party==="R");
+  const otherSide=all.filter(c=>c.party!=="R").sort((a,b)=>b.price-a.price);
+  let topParty=otherSide[0]?otherSide[0].party:"D";if(ch==="house")topParty="D";
+  const d=pick(c=>c.party===topParty)||pick(c=>c.party!=="R");
+  return{d,dp:topParty==="O"?"I":topParty,r};}
+function probCell(v,col){if(v==null)return`<td class="pcell num na">–</td>`;
+  return`<td class="pcell"><div class="pbar"><i style="width:${(v*100).toFixed(1)}%;background:${col}"></i><b>${pct(v)}</b></div></td>`;}
+function drawTable(ch){const tbl=document.getElementById(ch==="senate"?"senTable":"houTable");
+  let rows=DATA[ch].races.filter(r=>r.include);
+  const q=ST.houQuery.trim().toLowerCase();
+  const enriched=rows.map(r=>{const k=povProb(r,"k",ch,ST.pov),p=povProb(r,"p",ch,ST.pov);const nm=candNames(r,ch);
+    return{r,k,p,avg:blend(k,p,"avg"),nm};});
+  let list=enriched;if(ch==="house"&&q)list=list.filter(x=>(x.r.district+" "+(STATE_NAMES[x.r.st]||"")+" "+x.nm.d+" "+x.nm.r).toLowerCase().includes(q));
+  list.sort((a,b)=>Math.abs(a.avg-0.5)-Math.abs(b.avg-0.5));
+  const col=povColor();
+  let h=`<tr><th>${ch==="senate"?"Race":"District"}</th><th>Matchup</th><th class="num">Kalshi</th><th class="num">Polymarket</th><th class="num">Gap</th><th>Past 7 days</th><th class="num" title="Lowest hourly price of the leading side over the past 7 days, Kalshi / Polymarket">Leader's 7-day low</th></tr>`;
+  for(const x of list){const r=x.r;
+    const name=ch==="senate"?`${STATE_NAMES[r.st]}${r.special?"<small>special</small>":""}`:`${r.district}<small>${STATE_NAMES[r.st]||""}</small>`;
+    const links=[r.k?`<a class="ext" href="${r.k.url}" target="_blank" rel="noopener" title="Kalshi">K↗</a>`:"",r.p?`<a class="ext" href="${r.p.url}" target="_blank" rel="noopener" title="Polymarket">P↗</a>`:""].join(" ");
+    const tag=p=>`<span class="pd" style="background:${p==="D"?"var(--D)":p==="R"?"var(--R)":"var(--muted)"}">${p}</span>`;
+    const match=`<span class="d">${esc(x.nm.d)}</span>${tag(x.nm.dp)} <span style="color:var(--muted)">vs</span> <span class="d">${esc(x.nm.r)}</span>${tag("R")}`;
+    const gap=x.k!=null&&x.p!=null?Math.round((x.k-x.p)*100):null;
+    const lows=[r.k?r.k.weekLowFav:null,r.p?r.p.weekLowFav:null].map(v=>v==null?"–":pct(v)).join(" / ");
+    h+=`<tr><td class="race">${name} ${links}</td><td class="match">${match}</td>${probCell(x.k,col)}${probCell(x.p,col)}
+      <td class="num gap ${gap!=null&&Math.abs(gap)>=5?"big":""}">${gap==null?"–":(gap>0?"+":"")+gap}</td><td>${sparkline(r,ch)}</td><td class="num" style="color:var(--ink2)">${lows}</td></tr>`;}
+  tbl.innerHTML=h;
+  const what=ch==="senate"?"races":"districts";
+  const label=`Competitive ${what}: ${rows.length} of ${DATA[ch].races.length} (${PARTY_NAME[ST.pov]}' chance to win; gap = Kalshi minus Polymarket, in points)`;
+  if(ch==="senate")document.getElementById("senRacesTitle").textContent=label;else document.getElementById("houRacesLabel").textContent=label;}
+
+// ---------- render + data
+function renderStatus(){const el=document.getElementById("status");if(!DATA){el.innerHTML=dataErr?'<span class="err">Could not load data.json</span>':"Loading…";return;}
+  const age=Math.round((Date.now()/1000-DATA.generated)/60);
+  el.innerHTML=`<span><span class="dot live ${liveErr?"":"pulse"}" style="${liveErr?"background:var(--muted)":""}"></span>Polymarket ${liveErr?"live feed unavailable, showing snapshot":"live"}${liveAt?" · "+liveAt.toLocaleTimeString([], {hour:"numeric",minute:"2-digit",second:"2-digit"}):""}</span>`+
+    `<span><span class="dot" style="background:var(--K)"></span>Kalshi as of ${fmtTime(DATA.generated)} (${age<1?"just now":age+" min ago"}; refreshed about every 5 min)</span>`+
+    `<span><a href="#" id="themeBtn">Toggle theme</a></span>`;
+  document.getElementById("themeBtn").onclick=e=>{e.preventDefault();const r=document.documentElement;const cur=r.dataset.theme||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");r.dataset.theme=cur==="dark"?"light":"dark";try{localStorage.setItem("theme",r.dataset.theme)}catch(_){}};}
+function renderAll(){if(!DATA)return;
+  const rv=document.getElementById("rhoval");
+  rv.textContent=ST.rhoMode==="fit"?`Senate ${(ST.rhoFit.senate??0).toFixed(2)} · House ${(ST.rhoFit.house??0).toFixed(2)}`:`ρ = ${ST.rhoManual.toFixed(2)}`;
+  for(const ch of["senate","house"]){drawSeatChart(ch);drawTable(ch);}renderStatus();}
+let fitTimer=null;
+function refit(){clearTimeout(fitTimer);fitTimer=setTimeout(()=>{ST.rhoFit.senate=fitRho("senate");ST.rhoFit.house=fitRho("house");renderAll();},30);}
+async function loadData(first){try{const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw new Error(r.status);
+    const d=await r.json();const isNew=!DATA||d.generated!==DATA.generated;DATA=d;dataErr=false;
+    if(first||isNew){renderAll();refit();if(first)pollLive();}else renderStatus();}
+  catch(e){dataErr=true;renderStatus();}}
+async function pollLive(){if(!DATA)return;const toks=[];for(const ch of["senate","house"])for(const r of DATA[ch].races)if(r.p)for(const c of r.p.cands)if(c.ask>0)toks.push(c.id);
+  try{const out={};for(let i=0;i<toks.length;i+=200){const res=await fetch("https://clob.polymarket.com/midpoints",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify(toks.slice(i,i+200).map(t=>({token_id:t})))});if(!res.ok)throw new Error(res.status);Object.assign(out,await res.json());}
+    for(const k in out){const v=parseFloat(out[k]);if(isFinite(v))LIVE[k]=v;}liveAt=new Date();liveErr=false;}
+  catch(e){liveErr=true;}
+  renderAll();}
+
+// ---------- controls
+function seg(id,fn){const el=document.getElementById(id);el.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
+  el.querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b));fn(b.dataset.v);});}
+seg("pov",v=>{ST.pov=v;renderAll();});
+seg("src",v=>{ST.src=v;renderAll();refit();});
+seg("rhomode",v=>{ST.rhoMode=v;document.getElementById("rho").disabled=v!=="manual";renderAll();});
+document.getElementById("rho").addEventListener("input",e=>{ST.rhoManual=+e.target.value;renderAll();});
+document.getElementById("houSearch").addEventListener("input",e=>{ST.houQuery=e.target.value;drawTable("house");});
+try{const t=localStorage.getItem("theme");if(t)document.documentElement.dataset.theme=t;}catch(_){}
+loadData(true);
+setInterval(()=>loadData(false),60000);
+setInterval(pollLive,30000);
+setInterval(renderStatus,30000);
+</script>
+</body>
+</html>

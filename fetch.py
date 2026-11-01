@@ -28,6 +28,8 @@ NOW = int(time.time())
 HOUR, WEEK = 3600, 7 * 86400
 NOW_H = NOW // HOUR * HOUR
 REDISCOVER_EVERY = 3 * HOUR
+# Per-district House races (KP 2026-11-01: House is decided, show control odds only).
+HOUSE_RACES = False
 
 STATES = {
     "Alabama": "AL", "Alaska": "AK", "Arizona": "AZ", "Arkansas": "AR", "California": "CA",
@@ -185,10 +187,10 @@ def agg(cands):
 # ---------------------------------------------------------------- discovery
 def discover():
     log("discovering markets ...")
-    reg = {"senate": {}, "house": {}, "at": NOW}
+    reg = {"senate": {}, "house": {}, "at": NOW, "house_races": HOUSE_RACES}
     series = kget("/series?category=Elections")["series"]
     sen_s = [s["ticker"] for s in series if re.match(r"^(KX)?SENATE[A-Z]{2}S?$", s["ticker"])]
-    hou_s = [s["ticker"] for s in series if re.match(r"^(KX)?HOUSE[A-Z]{2}(\d+|AL)$", s["ticker"])]
+    hou_s = [s["ticker"] for s in series if re.match(r"^(KX)?HOUSE[A-Z]{2}(\d+|AL)$", s["ticker"])] if HOUSE_RACES else []
 
     def best(store, rid, rec):
         if rid not in store or rec["vol"] > store[rid]["vol"]:
@@ -236,7 +238,7 @@ def discover():
             continue
         m = re.match(r"^([a-z]{2})-(\d\d?|al)-house-election-winner(-individual)?(-\d+)?$", slug) or \
             re.match(r"^which-party-will-win-the-house-race-for-the-([a-z]{2})-(\d\d?|al)-seat$", slug)
-        if m and m.group(1).upper() in ABBR:
+        if HOUSE_RACES and m and m.group(1).upper() in ABBR:
             d = m.group(2).upper()
             rid = f"H-{m.group(1).upper()}-{d if d == 'AL' else int(d)}"
             # prefer the party market; per-candidate ("individual") ones are a fallback
@@ -434,7 +436,7 @@ def main():
     t0 = time.time()
     prev = load_prev_state()
     reg = prev.get("registry")
-    if not reg or NOW - reg.get("at", 0) > REDISCOVER_EVERY:
+    if not reg or NOW - reg.get("at", 0) > REDISCOVER_EVERY or reg.get("house_races") != HOUSE_RACES:
         reg = discover()
     prev_series = prev.get("series", {})
 

@@ -42,6 +42,7 @@ h3{font-size:14px;margin:22px 0 6px;color:var(--ink2)}
 .seg button.on{background:var(--chip);color:var(--ink);font-weight:600}
 input[type=range]{width:120px;accent-color:var(--ink2)}
 .tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:12px 0 6px}
+.tiles.two{grid-template-columns:repeat(2,minmax(0,1fr))}
 .tile{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:10px 12px}
 .tile .lab{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px}
 .tile .big{font-size:28px;font-weight:650;letter-spacing:-.02em;font-variant-numeric:tabular-nums;margin-top:2px}
@@ -89,7 +90,7 @@ details summary{cursor:pointer;color:var(--ink2);font-weight:600;font-size:13.5p
 <body>
 <div class="wrap">
   <h1>2026 midterms: prediction-market watch</h1>
-  <p class="sub">Kalshi and Polymarket odds for the U.S. Senate and House, and the seat distribution implied by the race-level prices. Election day is Tuesday, November 3, 2026.</p>
+  <p class="sub">Kalshi and Polymarket odds for the U.S. Senate and House, and the Senate seat distribution implied by the race-level prices. Election day is Tuesday, November 3, 2026.</p>
   <div class="status" id="status">Loading…</div>
 
   <div class="controls">
@@ -97,7 +98,7 @@ details summary{cursor:pointer;color:var(--ink2);font-weight:600;font-size:13.5p
       <div class="seg" id="pov"><button data-v="D" class="on">Democrats</button><button data-v="R">Republicans</button></div></div>
     <div class="ctl">Race odds for seat math
       <div class="seg" id="src"><button data-v="avg" class="on">Average</button><button data-v="k">Kalshi</button><button data-v="p">Polymarket</button></div></div>
-    <div class="ctl" title="How strongly race outcomes move together (a shared national swing). Auto fits it so the seat distribution matches the Kalshi and Polymarket seat-count markets.">Race correlation
+    <div class="ctl" title="How strongly Senate race outcomes move together (a shared national swing). Auto fits it so the seat distribution matches the Kalshi and Polymarket seat-count markets.">Race correlation
       <div class="seg" id="rhomode"><button data-v="fit" class="on">Auto</button><button data-v="manual">Manual</button></div>
       <input type="range" id="rho" min="0" max="0.9" step="0.01" value="0.3" disabled>
       <span id="rhoval" style="font-variant-numeric:tabular-nums"></span></div>
@@ -116,26 +117,15 @@ details summary{cursor:pointer;color:var(--ink2);font-weight:600;font-size:13.5p
 
   <h2>House</h2>
   <p class="sub" id="houSub"></p>
-  <div class="tiles" id="houTiles"></div>
-  <div class="card">
-    <div class="legend" id="houLegend"></div>
-    <svg class="chart" id="houChart" viewBox="0 0 1000 300" role="img" aria-label="House seat distribution"></svg>
-    <div class="tscroll"><table class="summ" id="houSumm"></table></div>
-  </div>
-  <h3 id="houRacesTitle" style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
-    <span id="houRacesLabel">Competitive districts</span>
-    <input class="search" id="houSearch" placeholder="Filter, e.g. NY or Lawler">
-  </h3>
-  <div class="tscroll"><table id="houTable"></table></div>
+  <div class="tiles two" id="houTiles"></div>
 
   <details open>
     <summary>How this page works</summary>
     <ul class="method">
-      <li><b>Which races are listed.</b> A race appears if its leading side traded below 90% at any hour in the past 7 days on Kalshi or Polymarket (hourly prices). Safe races still count toward the seat math; they're just not listed.</li>
-      <li><b>Prices.</b> Each candidate's price is the midpoint of the best bid and ask, or the last trade when the spread is wider than 10 cents (Polymarket's own display rule). We rescale each race's prices to sum to 100%. Polymarket prices refresh in your browser every 30 seconds. Kalshi blocks browser requests, so a server job fetches Kalshi roughly every 5 minutes.</li>
+      <li><b>Which races are listed.</b> A Senate race appears if its leading side traded below 90% at any hour in the past 7 days on Kalshi or Polymarket (hourly prices). Safe races still count toward the seat math; they're just not listed.</li>
+      <li><b>Prices.</b> Each candidate's price is the midpoint of the best bid and ask, or the last trade when the spread is wider than 10 cents (Polymarket's own display rule). We rescale each race's prices to sum to 100%. Polymarket prices refresh in your browser every 30 seconds. Kalshi blocks browser requests, so a server job fetches Kalshi about every 6 minutes.</li>
       <li><b>Senate seat math.</b> 34 Democratic-caucus seats (including King and Sanders) and 31 Republican seats aren't up in 2026. For each of the 35 races up (33 regular, plus specials in Ohio and Florida), we take the probability that the non-Republican side wins. Independents who win (Osborn in Nebraska, Bodnar in Montana, Achilles in Idaho, Bengs in South Dakota) count on the Democratic side; none has committed to caucus with Democrats, so the Democratic "control" figure here is slightly optimistic. With Vice President Vance breaking ties, Republicans keep control at 50 seats; Democrats need 51.</li>
       <li><b>Correlation.</b> Treating races as independent makes the seat distribution far too narrow, because a national swing moves every race together. We use a one-factor Gaussian model: each race's outcome is driven by a shared national shock (weight √ρ) plus a race-specific shock (weight √(1−ρ)), calibrated so each race keeps its market probability. Auto mode picks ρ to best match the cumulative seat distribution in the Kalshi and Polymarket seat-count markets. The distribution is computed exactly (numerical integration over the national shock, then an exact count over races), not by simulation.</li>
-      <li><b>House seat math.</b> Same method over all districts with a market (Polymarket covers essentially every district; Kalshi about 75). The seat-count markets are shown as horizontal bars spanning each bucket, at the per-seat average probability. Polymarket's market counts Republican seats; we convert to Democratic seats as 435 minus Republican seats. On November 1 the district markets summed to about 246 expected Democratic seats while both seat-count markets centered near 240–242, so the model sits a few seats more Democratic than the seat-count markets. Long-shot pricing doesn't explain the gap: safe Republican districts add about 4.6 "phantom" Democratic seats and safe Democratic districts about 4.1 phantom Republican seats, which roughly cancel. It's a disagreement between the two kinds of market.</li>
       <li><b>Data.</b> Kalshi public API and Polymarket Gamma/CLOB APIs. Market prices include fees and the long-shot bias, so treat small probabilities with caution.</li>
     </ul>
   </details>
@@ -349,15 +339,19 @@ function drawTable(ch){const tbl=document.getElementById(ch==="senate"?"senTable
 function renderStatus(){const el=document.getElementById("status");if(!DATA){el.innerHTML=dataErr?'<span class="err">Could not load data.json</span>':"Loading…";return;}
   const age=Math.round((Date.now()/1000-DATA.generated)/60);
   el.innerHTML=`<span><span class="dot live ${liveErr?"":"pulse"}" style="${liveErr?"background:var(--muted)":""}"></span>Polymarket ${liveErr?"live feed unavailable, showing snapshot":"live"}${liveAt?" · "+liveAt.toLocaleTimeString([], {hour:"numeric",minute:"2-digit",second:"2-digit"}):""}</span>`+
-    `<span><span class="dot" style="background:var(--K)"></span>Kalshi as of ${fmtTime(DATA.generated)} (${age<1?"just now":age+" min ago"}; refreshed about every 5 min)</span>`+
+    `<span><span class="dot" style="background:var(--K)"></span>Kalshi as of ${fmtTime(DATA.generated)} (${age<1?"just now":age+" min ago"}; refreshed about every 6 min)</span>`+
     `<span><a href="#" id="themeBtn">Toggle theme</a></span>`;
   document.getElementById("themeBtn").onclick=e=>{e.preventDefault();const r=document.documentElement;const cur=r.dataset.theme||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");r.dataset.theme=cur==="dark"?"light":"dark";try{localStorage.setItem("theme",r.dataset.theme)}catch(_){}};}
+function drawHouse(){const ctl=DATA.control.house;const ctlP=c=>c&&c.D!=null&&c.R!=null?(ST.pov==="D"?c.D:c.R)/(c.D+c.R):null;
+  const tile=(lab,col,v,url)=>`<div class="tile"><div class="lab"><span class="swatch" style="background:${col}"></span>${lab} <a class="ext" href="${url}" target="_blank" rel="noopener">↗</a></div><div class="big">${pct(v)}</div><div class="note">${PARTY_NAME[ST.pov]} win the House</div></div>`;
+  document.getElementById("houTiles").innerHTML=tile("Kalshi control market","var(--K)",ctlP(ctl.kalshi),ctl.kalshi_url)+tile("Polymarket control market","var(--P)",ctlP(ctl.polymarket),ctl.polymarket_url);
+  document.getElementById("houSub").textContent=`${PARTY_NAME[ST.pov]} need 218 seats. Control-market prices, normalized so both parties sum to 100%.`;}
 function renderAll(){if(!DATA)return;
   const rv=document.getElementById("rhoval");
-  rv.textContent=ST.rhoMode==="fit"?`Senate ${(ST.rhoFit.senate??0).toFixed(2)} · House ${(ST.rhoFit.house??0).toFixed(2)}`:`ρ = ${ST.rhoManual.toFixed(2)}`;
-  for(const ch of["senate","house"]){drawSeatChart(ch);drawTable(ch);}renderStatus();}
+  rv.textContent=`ρ = ${rhoFor("senate").toFixed(2)}${ST.rhoMode==="fit"?" (fitted)":""}`;
+  drawSeatChart("senate");drawTable("senate");drawHouse();renderStatus();}
 let fitTimer=null;
-function refit(){clearTimeout(fitTimer);fitTimer=setTimeout(()=>{ST.rhoFit.senate=fitRho("senate");ST.rhoFit.house=fitRho("house");renderAll();},30);}
+function refit(){clearTimeout(fitTimer);fitTimer=setTimeout(()=>{ST.rhoFit.senate=fitRho("senate");renderAll();},30);}
 async function loadData(first){try{const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw new Error(r.status);
     const d=await r.json();const isNew=!DATA||d.generated!==DATA.generated;DATA=d;dataErr=false;
     if(first||isNew){renderAll();refit();if(first)pollLive();}else renderStatus();}
@@ -376,7 +370,6 @@ seg("pov",v=>{ST.pov=v;renderAll();});
 seg("src",v=>{ST.src=v;renderAll();refit();});
 seg("rhomode",v=>{ST.rhoMode=v;document.getElementById("rho").disabled=v!=="manual";renderAll();});
 document.getElementById("rho").addEventListener("input",e=>{ST.rhoManual=+e.target.value;renderAll();});
-document.getElementById("houSearch").addEventListener("input",e=>{ST.houQuery=e.target.value;drawTable("house");});
 try{const t=localStorage.getItem("theme");if(t)document.documentElement.dataset.theme=t;}catch(_){}
 loadData(true);
 setInterval(()=>loadData(false),60000);

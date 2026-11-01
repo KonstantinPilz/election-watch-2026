@@ -2,25 +2,28 @@
 
 Live page: https://konstantinpilz.github.io/election-watch-2026/
 
-Kalshi and Polymarket odds for the 2026 U.S. Senate and House races, plus the seat
-distribution implied by the race-level prices.
+Kalshi and Polymarket odds for the 2026 U.S. Senate races and chamber control, plus the
+Senate seat distribution implied by the race-level prices.
 
 ## What the page shows
 
-1. **Chamber control**: P(win chamber) from a seat model built on race-level odds, next
+1. **Senate control**: P(win Senate) from a seat model built on race-level odds, next
    to the Kalshi and Polymarket control markets and their seat-count markets.
-2. **Seat distribution**: P(exact seat count) from the model (bars) vs. the Kalshi and
-   Polymarket seat-count markets (dots or bucket bars). Viewpoint toggles between
-   Democrats and Republicans.
-3. **Competitive races**: every Senate race and House district whose leading side traded
-   below 90% at any hour in the past 7 days on either platform, with both prices, the gap,
-   and a 7-day sparkline.
+2. **Senate seat distribution**: P(exact seat count) from the model (bars) vs. the Kalshi
+   and Polymarket seat-count markets (dots). Viewpoint toggles between Democrats and
+   Republicans.
+3. **Competitive Senate races**: every race whose leading side traded below 90% at any
+   hour in the past 7 days on either platform, with both prices, the gap and a 7-day
+   sparkline.
+4. **House**: control-market odds from Kalshi and Polymarket only (KP 2026-11-01: the
+   House is effectively decided). Per-district fetching still exists behind
+   `HOUSE_RACES = False` in `fetch.py`; the page no longer renders it.
 
 ## How it works
 
 - `fetch.py` (stdlib Python) discovers races on both platforms, pulls current prices,
   keeps a rolling 7-day hourly history and writes `site/data.json` + `site/state.json`.
-  The first run backfills a week of history (~1,200 price series, ~90 s). Later runs
+  The first run backfills a week of history (~150 Senate price series). Later runs
   reuse the local `site/state.json` and only append (~15–30 s).
 - `scripts/deploy.sh` runs from cron on the Oracle VM every 6 minutes (log:
   `deploy.log`): it runs `fetch.py`, then force-pushes `site/` as a single orphan commit
@@ -46,13 +49,10 @@ distribution implied by the race-level prices.
   `q_i`; `rho` sets how strongly races move together. The page integrates over `Z`
   (73-point grid) and counts wins exactly per grid point. Auto mode fits `rho` to the
   cumulative seat distribution of the Kalshi and Polymarket seat-count markets.
-- House: same method over the 435 districts that have a market (Polymarket covers all of
-  them, Kalshi about 75).
 
 ### Known quirks
 
-- Polymarket's House seat market counts Republican seats; we convert with 435 − R.
-- On 2026-11-01 the district markets summed to ~246 expected Democratic House seats,
+- (House, when `HOUSE_RACES` was on) On 2026-11-01 the district markets summed to ~246 expected Democratic House seats,
   while the seat-count markets centered at ~240–242. Long-shot pricing roughly cancels
   (+4.6 vs +4.1 phantom seats), so this is a gap between the two kinds of market,
   not a bug in the model.
